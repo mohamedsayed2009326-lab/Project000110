@@ -11,8 +11,19 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: Unzip project
-        run: unzip -q abousabra-gate-ready.zip -d project
+      - name: Prepare project
+        run: |
+          if [ -d android ]; then
+            mkdir project && cp -r android project/android
+          else
+            ZIP=$(ls *.zip 2>/dev/null | head -1)
+            if [ -z "$ZIP" ]; then
+              echo "No zip and no android folder found:"
+              ls -la
+              exit 1
+            fi
+            unzip -q "$ZIP" -d project
+          fi
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
